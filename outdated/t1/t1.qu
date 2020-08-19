@@ -1,0 +1,40 @@
+import config.json.*
+import operations.*
+
+operation t1_iteration(intervals: int[]): bool[] {
+	int K;
+	K = intervals.length;
+	bool[K] result_arr;
+
+	int i;
+	i = 0;
+	using (target : qubit) {
+		while(i < K) {
+			init(target);
+			X(target);
+
+			wait(target, intervals[i]);
+			result_arr[i] = measure(target);
+
+			i = i + 1;
+		}
+	}
+
+	return result_arr;
+}
+
+operation t1(intervals: int[], N: int): bool[][] {
+	int K;
+	K = intervals.length;
+	bool[N][K] results;
+
+	int i;
+	i = 0;
+	while(i < N) {
+		results[i] = t1_iteration(intervals);
+
+		i = i + 1;
+	}
+
+	return results;
+}

@@ -1,0 +1,99 @@
+import operations.*
+import config.json
+
+opaque magic_gate(q: qubit): unit;
+
+operation prepare_ansatz(q0: qubit, q1: qubit): unit {
+    init(q0);
+    init(q1);
+
+    X(q0);
+    Xm90(q0);
+    Y90(q1);
+    CNOT(q1, q0);
+    magic_gate(q0);
+    CNOT(q1, q0);
+    X90(q0);
+    Ym90(q1);
+}
+
+operation vqe_base() : bool[] {
+
+    bool[2] res;
+
+    using ((q0, q1):(qubit, qubit)) {
+
+        prepare_ansatz(q0, q1);
+
+        res[0] = measure(q0);
+        res[1] = measure(q1);
+    }
+
+    return res;
+}
+
+operation vqe_base_rot(tomo_rot0: qubit->unit,
+                   tomo_rot1: qubit->unit) : bool[] {
+
+    bool[2] res;
+
+    using ((q0, q1):(qubit, qubit)) {
+
+        prepare_ansatz(q0, q1);
+
+        tomo_rot0(q0); // partial tomography
+        tomo_rot1(q1); // partial tomography
+
+        res[0] = measure(q0);
+        res[1] = measure(q1);
+    }
+
+    return res;
+}
+
+operation vqe_quantum(nr_repetition: int): bool[][][] {
+
+    int i;
+    int j;
+    bool[nr_repetition][2] res_one_tomo;
+    bool[5][nr_repetition][2] res_partial;
+
+    // to calculate a^2, b^2, c^2, and d^2 for E2, E3, E4
+    i = 0;
+    while(i < 3) {
+
+        j = 0;
+        while (j < nr_repetition) {
+
+            res_one_tomo[j] = vqe_base();
+
+            j = j + 1;
+        }
+
+        res_partial[i] = res_one_tomo;
+    }
+
+    // to calculate a^2, b^2, c^2, and d^2 for E5
+    j = 0;
+    while (j < nr_repetition) {
+
+        res_one_tomo[j] = vqe_base_rot(X90, X90);
+
+        j = j + 1;
+    }
+
+    res_partial[3] = res_one_tomo;
+
+    // to calculate a^2, b^2, c^2, and d^2 for E6
+    j = 0;
+    while (j < nr_repetition) {
+
+        res_one_tomo[j] = vqe_base_rot(H, H);
+
+        j = j + 1;
+    }
+
+    res_partial[4] = res_one_tomo;
+
+    return res_partial;
+}

@@ -1,0 +1,61 @@
+
+from scipy.optimize import minimize_scalar, minimize
+from qgrtsys.if_host.python import *
+
+# def calculate_H2_energy():
+
+if_quingo = If_Quingo()
+
+
+def psi_from_tomography(num_qubits, res):
+    # psi == ...
+    pass
+
+
+def expect_hamiltonian(psi, H):
+    """Calculate the expection of a hamiltonian H on a quantum state psi.
+
+    Args:
+        psi: the state vector in double-complex
+        H: the hamiltonian applied on the qubits, ideally, this is an matrix.
+    """
+    return transpose(psi) .* H .* psi
+
+
+def prepare_magic_gate(theta, qfg_fn):
+    pass
+
+
+def vqe_wrap(theta, H):
+
+    prepare_magic_gate(theta, qfg_fn)
+    if if_quingo.call_quingo("kernel.qu", 'vqe_tomo') is False:
+        raise Error("The execution of the quantum kernel fails.")
+
+    res = if_quingo.read_result(0x600)  # get the tomo result
+
+    psi = psi_from_tomography(res)
+    return expect_hamiltonian(psi, H)
+
+
+def get_hamiltonian(coefficient):
+    """Calculate the H based on the coefficient
+
+    Args:
+        coefficient: the coefficients of each component in the H
+    """
+    pass
+
+
+def VQE(theta):
+    lowest_energies.append(minimum.fun)
+
+    for i in range(len(raw_data_table)):
+
+        hamiltonian = get_hamiltonian(raw_data_table[i])
+
+        theta = 0
+
+        minimum = minimize(vqe_wrap, theta, args=(hamiltonian))
+
+        lowest_energies.append(minimum.fun)

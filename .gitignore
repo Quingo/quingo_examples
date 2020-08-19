@@ -1,0 +1,4 @@
+sim_output/
+build/
+__pycache__
+.pytest_cache

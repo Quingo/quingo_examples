@@ -1,0 +1,27 @@
+import config.json.*
+import operations.*
+
+operation bell_test(): (bool,bool) {
+    bool a;
+    bool b;
+    using( (q0, q1): (qubit, qubit) ) {
+        init(q0);
+        init(q1);
+        H(q0);
+        CNOT(q0, q1);
+        a = measure(q0);
+        b = measure(q1);
+    }
+    return (a,b);
+}
+
+operation multi_bell(N: int): (bool,bool)[] {
+    (bool,bool)[N] res;
+    int i;
+    i = 0;
+    while (i < N) {
+        res[i] = bell_test();
+        i = i + 1;
+    }
+    return res;
+}
