@@ -1,0 +1,23 @@
+import config.json.*
+import operations.*
+
+operation bellStateLoop(num:int): bool[][] {
+    bool[num][2] bArr;
+
+    for (int k = 0; k < num; k += 1) {
+        bArr[k] = {true, false};
+    }
+
+    using(q: qubit[2]) {
+
+        for (int k = 0; k < num; k += 1) {
+            init_all(q);
+            H(q[0]);
+            CNOT(q[0],q[1]);        // |00> + |11>
+
+            bArr[k] = meas_all(q);
+        }
+    }
+
+    return bArr;
+}

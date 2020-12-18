@@ -1,0 +1,35 @@
+import config.json.*
+import operations.*
+
+operation qrng(): bool {
+    bool a;
+    a = false;
+    using(q: qubit) {
+        init(q);
+        H(q);
+        a = measure(q);
+    }
+    return a;
+}
+operation gen_ran_seq(N: int): bool[] {
+    bool[N] res;
+
+    for (int i = 0; i < N; i += 1) {
+        res[i] = qrng();
+    }
+
+    return res;
+}
+
+operation gen_ran(): (bool, bool)  {
+
+    bool res1;
+    bool res2;
+
+    res1 = qrng();
+    res2 = qrng();
+
+
+    return  (res1, res2);
+}
+

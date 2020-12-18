@@ -1,0 +1,54 @@
+package operations
+
+opaque Rx90(q:qubit): unit;
+opaque X(q:qubit): unit;
+opaque Y(q:qubit): unit;
+opaque Z(q:qubit): unit;
+opaque T(q:qubit): unit;
+opaque Tdag(q:qubit): unit;
+opaque S(q:qubit): unit;
+opaque H(q:qubit): unit;
+opaque CZ(c:qubit, t:qubit): unit;
+opaque measure(c:qubit): bool;
+
+operation init(q: qubit) : unit {
+    bool a;
+    a = measure(q);
+    if (a) {
+        X(q);
+    }
+}
+
+
+operation init_all(target: qubit[]) : unit {
+	apply_all(init, target);
+}
+
+operation apply_all(gate: qubit -> unit, qubits: qubit[]) : unit {
+	int i;
+	i = 0;
+	int num_qubits;
+	num_qubits = qubits.length;
+	while (i < num_qubits) {
+		gate(qubits[i]);
+		i = i + 1;
+	}
+}
+
+operation meas_all(qubits: qubit[]) : bool[] {
+	int num_qubits = qubits.length;
+
+	bool[num_qubits] res;
+	for (int i = 0; i < num_qubits; i += 1) {
+		res[i] = measure(qubits[i]);
+	}
+
+	return res;
+}
+
+operation CNOT(c: qubit, t: qubit): unit
+{
+	H(t);
+	CZ(c, t);
+	H(t);
+}

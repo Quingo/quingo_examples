@@ -12,7 +12,7 @@ operation syndrome(d1:qubit, d2:qubit, d3:qubit, a1:qubit, a2:qubit) : unit {
 operation repetitionCode() : bool[] {
     bool[2] syn;
     bool[3] output;
-    using((q, a) : (qubit[3], qubit[2])) {
+    using(q: qubit[3], a: qubit[2]) {
         init_all(q);
         init_all(a);
         X(q[0], 180.0);

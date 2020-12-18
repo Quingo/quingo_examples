@@ -1,0 +1,51 @@
+import config.json.*
+import operations.*
+
+operation CZ00(q0: qubit, q1: qubit): unit {
+    X(q0, 180.0);
+    X(q1, 180.0);
+    CZ(q0, q1);
+    X(q0, 180.0);
+    X(q1, 180.0);
+}
+
+operation CZ01(q0: qubit, q1: qubit): unit {
+    X(q0, 180.0);
+    CZ(q0, q1);
+    X(q0, 180.0);
+}
+
+operation CZ10(q0: qubit, q1: qubit): unit {
+    X(q1, 180.0);
+    CZ(q0, q1);
+    X(q1, 180.0);
+}
+
+operation CZ11(q0: qubit, q1: qubit): unit {
+    CZ(q0, q1);
+}
+
+operation grover_framework(q: qubit[],
+                           oracle: (qubit, qubit) -> unit): bool[] {
+    init_all(q);
+    apply_all(H, q);
+    // oracle
+    oracle(q[0], q[1]);
+
+    // inversion about mean
+    apply_all(H, q);
+    CZ00(q[0], q[1]);
+    apply_all(H, q);
+    return meas_all(q);
+}
+
+operation grover_2q(): bool[][] {
+    bool[4][2] a;
+    using(q: qubit[2]) {
+        a[0] = grover_framework(q, CZ00);
+        a[1] = grover_framework(q, CZ01);
+        a[2] = grover_framework(q, CZ10);
+        a[3] = grover_framework(q, CZ11);
+    }
+    return a;
+}

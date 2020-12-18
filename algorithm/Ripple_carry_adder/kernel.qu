@@ -37,37 +37,28 @@ operation unmaj(a:qubit, b:qubit, c:qubit) : unit {
 }
 
 operation X_all(target: qubit[]) : unit {
-	int i;
-	i = 0;
 	int num_qubits;
 	num_qubits = target.length;
-	while (i < num_qubits) {
+	for (int i = 0; i < num_qubits; i += 1) {
 		X(target[i], 180.0);
-		i = i + 1;
 	}
 }
 
 operation apply_all(gate: qubit -> unit, qubits: qubit[]) : unit {
-	int i;
-	i = 0;
-	int num_qubits;
-	num_qubits = qubits.length;
-	while (i < num_qubits) {
+	int num_qubits = qubits.length;
+	for (int i = 0; i < num_qubits; i += 1) {
 		gate(qubits[i]);
-		i = i + 1;
 	}
 }
- 
+
 operation meas_all(qubits: qubit[]) : bool[] {
 	int num_qubits;
 	num_qubits = qubits.length;
 
 	bool[num_qubits] res;
-	int i;
-	i = 0;
-	while (i < num_qubits) {
+
+	for (int i = 0; i < num_qubits; i += 1) {
 		res[i] = measure(qubits[i]);
-		i = i + 1;
 	}
 
 	return res;
@@ -78,15 +69,14 @@ operation init_all(target: qubit[]) : unit {
 }
 
 operation init(q: qubit) : unit {
-    bool a;
-    a = measure(q);
+    bool a = measure(q);
     if (a) {
         X(q, 180.0);
     }
 }
 
 
-operation CCNOT(a: qubit, b: qubit, c: qubit) : unit 
+operation CCNOT(a: qubit, b: qubit, c: qubit) : unit
 {
 	H(c);
 	CNOT(b, c);

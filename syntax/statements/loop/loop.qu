@@ -1,0 +1,22 @@
+import config.jason.*
+import operations.*
+
+operation test_for(): (int, int, int) {
+	int i = 0, a = 0;
+	for (; true; ) {
+		i = 1;			// i should turn to 1.
+		break;
+	}
+
+	while (true) {
+		a = 1;
+		break;
+	}
+
+	int j;
+	for (j = 0; j < 10;) {
+		j += 1;
+	}
+
+	return (i, a, j);
+}
