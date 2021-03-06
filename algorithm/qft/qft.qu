@@ -1,37 +1,90 @@
-operation cu1(lambda: double, a: qubit, b: qubit): unit {
-    U1(a, lambda/toDouble(2));
-    CZ(a, b);
-    U1(b, -lambda/toDouble(2));
-    CZ(a, b);
-    U1(b, lambda/toDouble(2));
+operation CtrlZ(theta: double, ctrl: qubit, target: qubit): unit {
+    Rz(ctrl, theta/2.0);
+    CZ(ctrl, target);
+    Rz(target, -theta/2.0);
+    CZ(ctrl, target);
+    Rz(target, theta/2.0);
+
 }
 
-operation qft(number: int, q: qubit[]): unit {
+// Note, the qubits are assumed to be arranged in the little endian format,
+// i.e., the qubit with index 0 encodes the lowest bit of an unsigned integer.
+operation qft(qubits: qubit[]): unit {
 
-    for (int i = 0; i < number; i += 1) {
+    int num_qubits = qubits.length;
 
-        for (int j = i; j > 0; j -= 1) {
-            cu1(180.0/toDouble(2*j), q[i], q[i - j]);
+    for (int i = num_qubits - 1; i >= 0; i -= 1) {
+
+        H(qubits[i]);
+
+        double angle = 90.0;
+        for (int j = i - 1; j >= 0; j -= 1) {
+            CtrlZ(angle, qubits[i], qubits[i - j]);
+            angle = angle / 2.0;
         }
+    }
 
-        H(q[i]);
+    for (int i = 0; i < num_qubits / 2; i += 1) {
+        swap(qubits[i], qubits[num_qubits - i - 1]);
     }
 }
 
-operation qft12(): bool[12] {
-    bool[12] output;
-    using(q : qubit[12]) {
+// Note, the qubits are assumed to be arranged in the little endian format,
+// i.e., the qubit with index 0 encodes the lowest bit of an unsigned integer.
+operation semi_classical_qft(qubits: qubit[]): bool[] {
+
+    int num_qubits = qubits.length;
+    bool[num_qubits] results;
+    double angle = 0.0;
+
+    for (int i = num_qubits - 1; i >= 0; i -= 1) {
+        Rz(angle, qubits[i]);
+        H(qubits[i]);
+        results[i] = measure(qubits[i]);
+
+        double add_angle = 0.0;
+        if (results[i]) {
+            add_angle += 180.0;
+        }
+        angle = (angle + add_angle) / 2.0;
+    }
+
+    return results;
+}
+
+// Note, the qubits are assumed to be arranged in the little endian format,
+// i.e., the qubit with index 0 encodes the lowest bit of an unsigned integer.
+operation iqft(qubits : qubit[]) : unit {
+
+    int num_qubits = qubits.length;
+
+    for (int i = 0; i < num_qubits / 2; i += 1) {
+        swap(qubits[i], qubits[num_qubits - i - 1]);
+    }
+
+    for (int i = 0; i < num_qubits; i += 1) {
+
+        double angle = -90.0;
+        for (int j = i - 1; j >= 0; j -= 1) {
+            CtrlZ(angle, qubits[i], qubits[i - j]);
+            angle = angle / 2.0;
+        }
+
+        H(qubits[i]);
+    }
+}
+
+operation test_qft(): bool[] {
+    bool[] output;
+    using(q : qubit[3]) {
+
         init_all(q);
-        X(q[0], 180.0);
-        X(q[2], 180.0);
-        qft(12, q);
+        X(q[2]);
+        X(q[1]);
+        X(q[0]);
+        iqft(q);
+        qft(q);
         output = meas_all(q);
     }
     return output;
-}
-
-
-
-operation main():unit{
-	 qft12();
 }
